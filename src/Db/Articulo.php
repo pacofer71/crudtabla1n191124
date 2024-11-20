@@ -6,16 +6,18 @@ class Articulo extends Conexion{
     private int $id;
     private string $nombre;
     private string $descripcion;
+    private string $disponible;
     private int $categoria_id;
 
     public function create(): void{
-        $q="insert into articulos(nombre, descripcion, categoria_id) values(:n, :d, :ci)";
+        $q="insert into articulos(nombre, descripcion, disponible, categoria_id) values(:n, :d, :di, :ci)";
         $stmt=parent::getConexion()->prepare($q);
         try{
             $stmt->execute([
                 ':n'=>$this->nombre,
                 ':d'=>$this->descripcion,
-                ':ci'=>$this->categoria_id
+                ':ci'=>$this->categoria_id,
+                ':di'=>$this->disponible,
             ]);
         }catch(PDOException $ex){
             throw new PDOException("Error en crear: {$ex->getMessage()}", -1);
@@ -25,14 +27,38 @@ class Articulo extends Conexion{
         }
     }
 
+    public static function read(): array{
+        $q="select articulos.*, categorias.nombre as nomcat from articulos, categorias 
+        where categoria_id=categorias.id order by nomcat";
+        $stmt=parent::getConexion()->prepare($q);
+        try{
+            $stmt->execute();
+        }catch(PDOException $ex){
+            throw new PDOException("Error en read: {$ex->getMessage()}", -1);
+            
+        }finally{
+            parent::cerrarConexion();
+        }
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+
+
+
+    }
+
     public static function crearArticulosRandom(int $cant): void{
         $faker=\Faker\Factory::create('es_ES');
         $categoriasId=Categoria::devolverArrayId();
         for($i=0; $i<$cant; $i++){
-            $nombre=$faker->unique()->sentence(5);
+            $nombre=ucwords($faker->unique()->words(random_int(2,3), true));
             $descripcion=$faker->text();
-            $categoria_id=$faker->randomElement($categoriasId)
-
+            $disponible=$faker->randomElement(["SI", "NO"]);
+            $categoria_id=$faker->randomElement($categoriasId);
+            (new Articulo)
+            ->setNombre($nombre)
+            ->setDescripcion($descripcion)
+            ->setDisponible($disponible)
+            ->setCategoriaId($categoria_id)
+            ->create();
         }
     }
 
@@ -104,6 +130,24 @@ class Articulo extends Conexion{
     public function setCategoriaId(int $categoria_id): self
     {
         $this->categoria_id = $categoria_id;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of disponible
+     */
+    public function getDisponible(): string
+    {
+        return $this->disponible;
+    }
+
+    /**
+     * Set the value of disponible
+     */
+    public function setDisponible(string $disponible): self
+    {
+        $this->disponible = $disponible;
 
         return $this;
     }
