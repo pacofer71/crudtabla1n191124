@@ -68,62 +68,58 @@ $articulos = Articulo::read();
             </thead>
             <tbody>
                 <?php
-                foreach ($articulos as $item) {
+                foreach ($articulos as $item) :
                     $color = ($item->disponible == 'SI') ? "bg-green-500" : "bg-red-500";
-                    echo <<<TXT
-                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                        {$item->nombre}
-                    </th>
-                    <td class="px-6 py-4">
-                        {$item->descripcion}
-                    </td>
-                    <td class="px-6 py-4">
-                        {$item->nomcat}
-                    </td>
-                    <td class="px-6 py-4">
-                        <form method='POST' action='articulos.php'>
-                        <input type='hidden' name='id' value="{$item->id}" />
-                        <button class='w-full p-2 rounded-xl font-bold text-white $color'>
-                            {$item->disponible}
-                        </button>
-                        </form>
-                    </td>
-                    <td>
-                        <form action='borrar.php' method='POST'>
-                            <input type='hidden' name='id' value='{$item->id}' />
-                            <a href="update.php?id={$item->id}">
-                                <i class='fas fa-edit text-blue-500 hover:text-xl mr-2'></i>
-                            </a>
-                            <button type='submit' onclick="return confirm('¿Borrar Artículo?');">
-                                <i class='fas fa-trash text-red-500 hover:text-xl'></i>
-                            </button>
-                        </form>
-                    </td>
-                </tr>
-                TXT;
-                }
                 ?>
+                    <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                        <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                            <?= $item->nombre; ?>
+                        </th>
+                        <td class="px-6 py-4">
+                            <?= $item->descripcion ?>
+                        </td>
+                        <td class="px-6 py-4">
+                            <?= $item->nomcat ?>
+                        </td>
+                        <td class="px-6 py-4">
+                            <form method='POST' action='articulos.php'>
+                                <input type='hidden' name='id' value="<?= $item->id ?>" />
+                                <button class='w-full p-2 rounded-xl font-bold text-white <?=$color ?>'>
+                                    <?= $item->disponible ?>
+                                </button>
+                            </form>
+                        </td>
+                        <td>
+                            <form action='borrar.php' method='POST'>
+                                <input type='hidden' name='id' value='<?= $item->id ?>' />
+                                <a href="update.php?id=<?= $item->id ?>">
+                                    <i class='fas fa-edit text-blue-500 hover:text-xl mr-2'></i>
+                                </a>
+                                <button type='submit' onclick="return confirm('¿Borrar Artículo?');">
+                                    <i class='fas fa-trash text-red-500 hover:text-xl'></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+
+                <?php endforeach; ?>
             </tbody>
         </table>
     </div>
 
     <!-- FIn tabla articulos -->
-    <?php
-    if (isset($_SESSION['mensaje'])) {
-        echo <<<TXT
-            <script>
+    <?php if (isset($_SESSION['mensaje'])) : ?>
+        <script>
             Swal.fire({
                 icon: "success",
-                title: "{$_SESSION['mensaje']}",
+                title: "<?= $_SESSION['mensaje'] ?>",
                 showConfirmButton: false,
                 timer: 1500
             });
-            </script>
-            TXT;
+        </script>
+    <?php
         unset($_SESSION['mensaje']);
-    }
-    ?>
+        endif; ?>
 </body>
 
 </html>
